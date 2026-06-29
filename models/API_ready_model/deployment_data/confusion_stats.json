@@ -1,0 +1,8 @@
+{
+  "total_samples": 86140,
+  "total_chars": 1462286,
+  "unique_chars": 255,
+  "unique_confusions": 14718,
+  "unique_word_confusions": 71799,
+  "confusion_rate": 0.010065062511711116
+}

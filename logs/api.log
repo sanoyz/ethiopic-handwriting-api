@@ -1,0 +1,54 @@
+2026-06-22 22:28:27,030 - api.app - INFO -    Vocabulary size: 255
+2026-06-22 22:28:27,030 - api.app - INFO -    Max Strokes: 60
+2026-06-22 22:28:27,030 - api.app - INFO -    D_MODEL: 384
+2026-06-22 22:28:27,030 - api.app - INFO -    N_LAYERS: 5
+2026-06-22 22:28:27,030 - api.app - INFO -    MEMORY_SIZE: 192
+2026-06-22 22:31:25,376 - api.app - INFO - [OK] Model loaded successfully on cpu
+2026-06-22 22:31:25,376 - api.app - INFO -    Vocabulary size: 255
+2026-06-22 22:31:25,376 - api.app - INFO -    Max Strokes: 60
+2026-06-22 22:31:25,376 - api.app - INFO -    D_MODEL: 384
+2026-06-22 22:31:25,376 - api.app - INFO -    N_LAYERS: 5
+2026-06-22 22:31:25,376 - api.app - INFO -    MEMORY_SIZE: 192
+2026-06-22 22:31:25,376 - api.app - INFO - [OK] Corrector initialized with default rules
+2026-06-23 17:45:50,839 - api.app - INFO - [OK] Model loaded successfully on cpu
+2026-06-23 17:45:50,840 - api.app - INFO -    Vocabulary size: 255
+2026-06-23 17:45:50,840 - api.app - INFO -    Max Strokes: 60
+2026-06-23 17:45:50,840 - api.app - INFO -    D_MODEL: 384
+2026-06-23 17:45:50,841 - api.app - INFO -    N_LAYERS: 5
+2026-06-23 17:45:50,841 - api.app - INFO -    MEMORY_SIZE: 192
+2026-06-23 17:45:50,841 - api.app - INFO - [OK] Corrector initialized with default rules
+2026-06-23 17:51:33,629 - api.app - INFO - [OK] Model loaded successfully on cpu
+2026-06-23 17:51:33,629 - api.app - INFO -    Vocabulary size: 255
+2026-06-23 17:51:33,629 - api.app - INFO -    Max Strokes: 60
+2026-06-23 17:51:33,629 - api.app - INFO -    D_MODEL: 384
+2026-06-23 17:51:33,629 - api.app - INFO -    N_LAYERS: 5
+2026-06-23 17:51:33,629 - api.app - INFO -    MEMORY_SIZE: 192
+2026-06-23 17:51:33,629 - api.app - INFO - [OK] Corrector initialized with default rules
+2026-06-23 18:01:04,628 - api.app - INFO - [OK] Model loaded successfully on cpu
+2026-06-23 18:01:04,629 - api.app - INFO -    Vocabulary size: 255
+2026-06-23 18:01:04,629 - api.app - INFO -    Max Strokes: 60
+2026-06-23 18:01:04,629 - api.app - INFO -    D_MODEL: 384
+2026-06-23 18:01:04,629 - api.app - INFO -    N_LAYERS: 5
+2026-06-23 18:01:04,629 - api.app - INFO -    MEMORY_SIZE: 192
+2026-06-23 18:01:04,630 - api.app - INFO - [OK] Corrector initialized with default rules
+2026-06-23 18:10:01,995 - api.app - INFO - [OK] Model loaded successfully on cpu
+2026-06-23 18:10:01,996 - api.app - INFO -    Vocabulary size: 255
+2026-06-23 18:10:01,996 - api.app - INFO -    Max Strokes: 60
+2026-06-23 18:10:01,996 - api.app - INFO -    D_MODEL: 384
+2026-06-23 18:10:01,996 - api.app - INFO -    N_LAYERS: 5
+2026-06-23 18:10:01,997 - api.app - INFO -    MEMORY_SIZE: 192
+2026-06-23 18:10:01,997 - api.app - INFO - [OK] Corrector initialized with default rules
+2026-06-23 18:10:18,808 - api.app - INFO - [OK] Model loaded successfully on cpu
+2026-06-23 18:10:18,808 - api.app - INFO -    Vocabulary size: 255
+2026-06-23 18:10:18,810 - api.app - INFO -    Max Strokes: 60
+2026-06-23 18:10:18,810 - api.app - INFO -    D_MODEL: 384
+2026-06-23 18:10:18,810 - api.app - INFO -    N_LAYERS: 5
+2026-06-23 18:10:18,810 - api.app - INFO -    MEMORY_SIZE: 192
+2026-06-23 18:10:18,810 - api.app - INFO - [OK] Corrector initialized with default rules
+2026-06-30 00:25:43,711 - api.app - INFO - [OK] Model loaded successfully on cpu
+2026-06-30 00:25:43,712 - api.app - INFO -    Vocabulary size: 255
+2026-06-30 00:25:43,712 - api.app - INFO -    Max Strokes: 60
+2026-06-30 00:25:43,712 - api.app - INFO -    D_MODEL: 384
+2026-06-30 00:25:43,712 - api.app - INFO -    N_LAYERS: 5
+2026-06-30 00:25:43,713 - api.app - INFO -    MEMORY_SIZE: 192
+2026-06-30 00:25:43,713 - api.app - INFO - [OK] Corrector initialized with default rules

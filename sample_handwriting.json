@@ -1,0 +1,40 @@
+{
+  "sample_id": "test_sample",
+  "sentence": "Test sentence",
+  "timestamp": "2026-01-19T10:30:00Z",
+  "canvas_size": {
+    "width": 800,
+    "height": 600
+  },
+  "device_info": {
+    "pointer_type": "pen_tablet_capable",
+    "features": [
+      "pressure",
+      "tilt",
+      "timestamp"
+    ]
+  },
+  "strokes": [
+    {
+      "stroke_index": 1,
+      "points": [
+        {
+          "x": 24.22,
+          "y": 159.32,
+          "timestamp": 1776440223119,
+          "pressure": 0.158,
+          "tilt_x": 24,
+          "tilt_y": 32
+        },
+        {
+          "x": 24.22,
+          "y": 160.21,
+          "timestamp": 1776440223160,
+          "pressure": 0.41,
+          "tilt_x": 25,
+          "tilt_y": 32
+        }
+      ]
+    }
+  ]
+}

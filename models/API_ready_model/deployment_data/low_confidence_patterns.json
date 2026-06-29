@@ -1,0 +1,502 @@
+[
+  {
+    "char": "ጌ",
+    "confidence": 0.0826,
+    "context": "ጌታ "
+  },
+  {
+    "char": "ታ",
+    "confidence": 0.0302,
+    "context": "ጌታ ሆ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0349,
+    "context": "ጌታ ሆይ"
+  },
+  {
+    "char": "ሆ",
+    "confidence": 0.0277,
+    "context": "ታ ሆይ "
+  },
+  {
+    "char": "ይ",
+    "confidence": 0.0445,
+    "context": " ሆይ አ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0661,
+    "context": "ሆይ አን"
+  },
+  {
+    "char": "አ",
+    "confidence": 0.0264,
+    "context": "ይ አንተ"
+  },
+  {
+    "char": "ን",
+    "confidence": 0.071,
+    "context": " አንተ "
+  },
+  {
+    "char": "ተ",
+    "confidence": 0.0639,
+    "context": "አንተ ሁ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0246,
+    "context": "ንተ ሁሉ"
+  },
+  {
+    "char": "ሁ",
+    "confidence": 0.0386,
+    "context": "ተ ሁሉን"
+  },
+  {
+    "char": "ሉ",
+    "confidence": 0.0593,
+    "context": " ሁሉን "
+  },
+  {
+    "char": "ን",
+    "confidence": 0.0418,
+    "context": "ሁሉን ታ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0676,
+    "context": "ሉን ታው"
+  },
+  {
+    "char": "ታ",
+    "confidence": 0.058,
+    "context": "ን ታውቃ"
+  },
+  {
+    "char": "ው",
+    "confidence": 0.0335,
+    "context": " ታውቃለ"
+  },
+  {
+    "char": "ቃ",
+    "confidence": 0.1066,
+    "context": "ታውቃለህ"
+  },
+  {
+    "char": "ለ",
+    "confidence": 0.0886,
+    "context": "ውቃለህ።"
+  },
+  {
+    "char": "ህ",
+    "confidence": 0.0509,
+    "context": "ቃለህ።"
+  },
+  {
+    "char": "።",
+    "confidence": 0.0483,
+    "context": "ለህ።"
+  },
+  {
+    "char": "ፑ",
+    "confidence": 0.0302,
+    "context": "ፑቲን"
+  },
+  {
+    "char": "ቲ",
+    "confidence": 0.0548,
+    "context": "ፑቲን "
+  },
+  {
+    "char": "ን",
+    "confidence": 0.0691,
+    "context": "ፑቲን ሩ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0339,
+    "context": "ቲን ሩሲ"
+  },
+  {
+    "char": "ሩ",
+    "confidence": 0.0455,
+    "context": "ን ሩሲያ"
+  },
+  {
+    "char": "ሲ",
+    "confidence": 0.0539,
+    "context": " ሩሲያዊ"
+  },
+  {
+    "char": "ያ",
+    "confidence": 0.0507,
+    "context": "ሩሲያዊ "
+  },
+  {
+    "char": "ዊ",
+    "confidence": 0.0662,
+    "context": "ሲያዊ ነ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0675,
+    "context": "ያዊ ነው"
+  },
+  {
+    "char": "ነ",
+    "confidence": 0.0453,
+    "context": "ዊ ነው።"
+  },
+  {
+    "char": "ው",
+    "confidence": 0.0449,
+    "context": " ነው።"
+  },
+  {
+    "char": "።",
+    "confidence": 0.1075,
+    "context": "ነው።"
+  },
+  {
+    "char": "አ",
+    "confidence": 0.0434,
+    "context": "አባቴ"
+  },
+  {
+    "char": "ባ",
+    "confidence": 0.0468,
+    "context": "አባቴና"
+  },
+  {
+    "char": "ቴ",
+    "confidence": 0.043,
+    "context": "አባቴና "
+  },
+  {
+    "char": "ና",
+    "confidence": 0.0653,
+    "context": "ባቴና እ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0596,
+    "context": "ቴና እና"
+  },
+  {
+    "char": "እ",
+    "confidence": 0.0397,
+    "context": "ና እናቴ"
+  },
+  {
+    "char": "ና",
+    "confidence": 0.0466,
+    "context": " እናቴ "
+  },
+  {
+    "char": "ቴ",
+    "confidence": 0.0464,
+    "context": "እናቴ ቢ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0444,
+    "context": "ናቴ ቢተ"
+  },
+  {
+    "char": "ቢ",
+    "confidence": 0.0329,
+    "context": "ቴ ቢተዉ"
+  },
+  {
+    "char": "ተ",
+    "confidence": 0.0374,
+    "context": " ቢተዉኝ"
+  },
+  {
+    "char": "ዉ",
+    "confidence": 0.0213,
+    "context": "ቢተዉኝ "
+  },
+  {
+    "char": "ኝ",
+    "confidence": 0.0778,
+    "context": "ተዉኝ ጌ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.063,
+    "context": "ዉኝ ጌታ"
+  },
+  {
+    "char": "ጌ",
+    "confidence": 0.0433,
+    "context": "ኝ ጌታ "
+  },
+  {
+    "char": "ታ",
+    "confidence": 0.0249,
+    "context": " ጌታ ይ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0375,
+    "context": "ጌታ ይቀ"
+  },
+  {
+    "char": "ይ",
+    "confidence": 0.0434,
+    "context": "ታ ይቀበ"
+  },
+  {
+    "char": "ቀ",
+    "confidence": 0.0334,
+    "context": " ይቀበለ"
+  },
+  {
+    "char": "በ",
+    "confidence": 0.0379,
+    "context": "ይቀበለኛ"
+  },
+  {
+    "char": "ለ",
+    "confidence": 0.0285,
+    "context": "ቀበለኛል"
+  },
+  {
+    "char": "ኛ",
+    "confidence": 0.0331,
+    "context": "በለኛል።"
+  },
+  {
+    "char": "ል",
+    "confidence": 0.0334,
+    "context": "ለኛል።"
+  },
+  {
+    "char": "።",
+    "confidence": 0.0297,
+    "context": "ኛል።"
+  },
+  {
+    "char": "ከ",
+    "confidence": 0.0508,
+    "context": "ከውኃ"
+  },
+  {
+    "char": "ው",
+    "confidence": 0.0474,
+    "context": "ከውኃና"
+  },
+  {
+    "char": "ኃ",
+    "confidence": 0.0391,
+    "context": "ከውኃና "
+  },
+  {
+    "char": "ና",
+    "confidence": 0.0336,
+    "context": "ውኃና ከ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0327,
+    "context": "ኃና ከመ"
+  },
+  {
+    "char": "ከ",
+    "confidence": 0.0256,
+    "context": "ና ከመን"
+  },
+  {
+    "char": "መ",
+    "confidence": 0.098,
+    "context": " ከመንፈ"
+  },
+  {
+    "char": "ን",
+    "confidence": 0.0771,
+    "context": "ከመንፈስ"
+  },
+  {
+    "char": "ፈ",
+    "confidence": 0.037,
+    "context": "መንፈስ "
+  },
+  {
+    "char": "ስ",
+    "confidence": 0.0636,
+    "context": "ንፈስ የ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0876,
+    "context": "ፈስ የተ"
+  },
+  {
+    "char": "የ",
+    "confidence": 0.0776,
+    "context": "ስ የተወ"
+  },
+  {
+    "char": "ተ",
+    "confidence": 0.0248,
+    "context": " የተወለ"
+  },
+  {
+    "char": "ወ",
+    "confidence": 0.0345,
+    "context": "የተወለደ"
+  },
+  {
+    "char": "ለ",
+    "confidence": 0.0377,
+    "context": "ተወለደ "
+  },
+  {
+    "char": "ደ",
+    "confidence": 0.0472,
+    "context": "ወለደ ብ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0501,
+    "context": "ለደ ብቻ"
+  },
+  {
+    "char": "ብ",
+    "confidence": 0.0278,
+    "context": "ደ ብቻ።"
+  },
+  {
+    "char": "ቻ",
+    "confidence": 0.0379,
+    "context": " ብቻ።"
+  },
+  {
+    "char": "።",
+    "confidence": 0.0382,
+    "context": "ብቻ።"
+  },
+  {
+    "char": "ከ",
+    "confidence": 0.0513,
+    "context": "ከክፉ"
+  },
+  {
+    "char": "ክ",
+    "confidence": 0.0478,
+    "context": "ከክፉ "
+  },
+  {
+    "char": "ፉ",
+    "confidence": 0.0943,
+    "context": "ከክፉ ሁ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.1068,
+    "context": "ክፉ ሁሉ"
+  },
+  {
+    "char": "ሁ",
+    "confidence": 0.0532,
+    "context": "ፉ ሁሉ "
+  },
+  {
+    "char": "ሉ",
+    "confidence": 0.0285,
+    "context": " ሁሉ አ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.042,
+    "context": "ሁሉ አድ"
+  },
+  {
+    "char": "አ",
+    "confidence": 0.0375,
+    "context": "ሉ አድነ"
+  },
+  {
+    "char": "ድ",
+    "confidence": 0.1014,
+    "context": " አድነን"
+  },
+  {
+    "char": "ነ",
+    "confidence": 0.0428,
+    "context": "አድነን።"
+  },
+  {
+    "char": "ን",
+    "confidence": 0.0252,
+    "context": "ድነን።"
+  },
+  {
+    "char": "።",
+    "confidence": 0.0446,
+    "context": "ነን።"
+  },
+  {
+    "char": "በ",
+    "confidence": 0.0442,
+    "context": "በኢየ"
+  },
+  {
+    "char": "ኢ",
+    "confidence": 0.0617,
+    "context": "በኢየሱ"
+  },
+  {
+    "char": "የ",
+    "confidence": 0.0705,
+    "context": "በኢየሱስ"
+  },
+  {
+    "char": "ሱ",
+    "confidence": 0.037,
+    "context": "ኢየሱስ "
+  },
+  {
+    "char": "ስ",
+    "confidence": 0.045,
+    "context": "የሱስ ስ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0524,
+    "context": "ሱስ ስም"
+  },
+  {
+    "char": "ስ",
+    "confidence": 0.0507,
+    "context": "ስ ስም "
+  },
+  {
+    "char": "ም",
+    "confidence": 0.0378,
+    "context": " ስም ተ"
+  },
+  {
+    "char": " ",
+    "confidence": 0.0497,
+    "context": "ስም ተነ"
+  },
+  {
+    "char": "ተ",
+    "confidence": 0.0493,
+    "context": "ም ተነሣ"
+  },
+  {
+    "char": "ነ",
+    "confidence": 0.0998,
+    "context": " ተነሣና"
+  },
+  {
+    "char": "ሣ",
+    "confidence": 0.0378,
+    "context": "ተነሣና "
+  }
+]

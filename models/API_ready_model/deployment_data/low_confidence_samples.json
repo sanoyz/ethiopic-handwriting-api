@@ -1,0 +1,302 @@
+[
+  {
+    "text": "ጌታ ሆይ አንተ ሁሉን ታውቃለህ።",
+    "avg_confidence": 0.048797428607940674,
+    "min_confidence": 0.024593252688646317,
+    "max_confidence": 0.1318962275981903
+  },
+  {
+    "text": "ፑቲን ሩሲያዊ ነው።",
+    "avg_confidence": 0.051656343042850494,
+    "min_confidence": 0.027599260210990906,
+    "max_confidence": 0.1680120974779129
+  },
+  {
+    "text": "አባቴና እናቴ ቢተዉኝ ጌታ ይቀበለኛል።",
+    "avg_confidence": 0.046079494059085846,
+    "min_confidence": 0.021293623372912407,
+    "max_confidence": 0.08994594216346741
+  },
+  {
+    "text": "ከውኃና ከመንፈስ የተወለደ ብቻ።",
+    "avg_confidence": 0.048797037452459335,
+    "min_confidence": 0.023851606994867325,
+    "max_confidence": 0.1178898811340332
+  },
+  {
+    "text": "ከክፉ ሁሉ አድነን።",
+    "avg_confidence": 0.04859146475791931,
+    "min_confidence": 0.023532653227448463,
+    "max_confidence": 0.1067860946059227
+  },
+  {
+    "text": "በኢየሱስ ስም ተነሣና ሂድ።",
+    "avg_confidence": 0.052656564861536026,
+    "min_confidence": 0.02246282808482647,
+    "max_confidence": 0.16606193780899048
+  },
+  {
+    "text": "የዘላለም ቃል ኪዳን ሰጠው።",
+    "avg_confidence": 0.04898794740438461,
+    "min_confidence": 0.02603171020746231,
+    "max_confidence": 0.13105005025863647
+  },
+  {
+    "text": "እግዚአብሔር ልብን ያያል።",
+    "avg_confidence": 0.05207284167408943,
+    "min_confidence": 0.02518073283135891,
+    "max_confidence": 0.14402145147323608
+  },
+  {
+    "text": "ቁርስ በልተህ ውጣ።",
+    "avg_confidence": 0.046597566455602646,
+    "min_confidence": 0.019567303359508514,
+    "max_confidence": 0.07728192955255508
+  },
+  {
+    "text": "ጌታ ይባርክህ።",
+    "avg_confidence": 0.05273778736591339,
+    "min_confidence": 0.023147225379943848,
+    "max_confidence": 0.2593808174133301
+  },
+  {
+    "text": "ኡኡታ ተሰማ።",
+    "avg_confidence": 0.054548125714063644,
+    "min_confidence": 0.022127753123641014,
+    "max_confidence": 0.11577893793582916
+  },
+  {
+    "text": "ስም በከንቱ አትጥራ።",
+    "avg_confidence": 0.05164220556616783,
+    "min_confidence": 0.022249363362789154,
+    "max_confidence": 0.12911313772201538
+  },
+  {
+    "text": "ማርስ ላይ ሸለቆዎች ሜዳዎችና ተራራማ ቦታዎች አሉ።",
+    "avg_confidence": 0.05452362820506096,
+    "min_confidence": 0.027028456330299377,
+    "max_confidence": 0.1491914987564087
+  },
+  {
+    "text": "የእግዚአብሔር በግ።",
+    "avg_confidence": 0.04767400398850441,
+    "min_confidence": 0.0267796590924263,
+    "max_confidence": 0.1152031421661377
+  },
+  {
+    "text": "ኝታ አጣሁኝ።",
+    "avg_confidence": 0.05024581775069237,
+    "min_confidence": 0.02632666565477848,
+    "max_confidence": 0.143342986702919
+  },
+  {
+    "text": "ባቡሩ በሰዓቱ ደረሰ።",
+    "avg_confidence": 0.049120768904685974,
+    "min_confidence": 0.018822576850652695,
+    "max_confidence": 0.16774047911167145
+  },
+  {
+    "text": "እውነትን ፈልጉ።",
+    "avg_confidence": 0.051728107035160065,
+    "min_confidence": 0.024113545194268227,
+    "max_confidence": 0.23629775643348694
+  },
+  {
+    "text": "ሂሳብ መሥራት እወዳለሁ።",
+    "avg_confidence": 0.041329171508550644,
+    "min_confidence": 0.022426264360547066,
+    "max_confidence": 0.08538291603326797
+  },
+  {
+    "text": "ዲጂታል ሰዓት ገዛሁ።",
+    "avg_confidence": 0.04528737813234329,
+    "min_confidence": 0.022033333778381348,
+    "max_confidence": 0.13766635954380035
+  },
+  {
+    "text": "ያለ እኔ ምንም አትችሉም።",
+    "avg_confidence": 0.05299115926027298,
+    "min_confidence": 0.026666486635804176,
+    "max_confidence": 0.10327617824077606
+  },
+  {
+    "text": "ክፉውን በመልካም አሸንፉ።",
+    "avg_confidence": 0.046668507158756256,
+    "min_confidence": 0.024343816563487053,
+    "max_confidence": 0.09315887838602066
+  },
+  {
+    "text": "ዝናባ እየዘነበ ነው።",
+    "avg_confidence": 0.047803688794374466,
+    "min_confidence": 0.02684042416512966,
+    "max_confidence": 0.13862282037734985
+  },
+  {
+    "text": "ጥርስህን በደንብ እጠብ።",
+    "avg_confidence": 0.048535849899053574,
+    "min_confidence": 0.022698858752846718,
+    "max_confidence": 0.12669186294078827
+  },
+  {
+    "text": "መንገዱን አዘጋጁ።",
+    "avg_confidence": 0.048476289957761765,
+    "min_confidence": 0.023415494710206985,
+    "max_confidence": 0.1459747850894928
+  },
+  {
+    "text": "እግዚአብሔር ይቀበለኛል።",
+    "avg_confidence": 0.04901233687996864,
+    "min_confidence": 0.01970595121383667,
+    "max_confidence": 0.10921410471200943
+  },
+  {
+    "text": "ሰላም ለእናንተ ይሁን።",
+    "avg_confidence": 0.04469577595591545,
+    "min_confidence": 0.022180229425430298,
+    "max_confidence": 0.11427582055330276
+  },
+  {
+    "text": "ዪኒፎርም መልበስ አለብህ።",
+    "avg_confidence": 0.045309845358133316,
+    "min_confidence": 0.020545432344079018,
+    "max_confidence": 0.10720348358154297
+  },
+  {
+    "text": "ኢየሱስ እንባውን አፈሰሰ።",
+    "avg_confidence": 0.05350041389465332,
+    "min_confidence": 0.024581685662269592,
+    "max_confidence": 0.1380327045917511
+  },
+  {
+    "text": "ኃጢአት መስራት መጥፎ ነው።",
+    "avg_confidence": 0.05060111731290817,
+    "min_confidence": 0.02534486912190914,
+    "max_confidence": 0.119919054210186
+  },
+  {
+    "text": "ፍቅሩ ልዩ ነው።",
+    "avg_confidence": 0.05801108106970787,
+    "min_confidence": 0.02589358203113079,
+    "max_confidence": 0.1671476662158966
+  },
+  {
+    "text": "ዎርክሾፕ ላይ ተሳተፍኩ።",
+    "avg_confidence": 0.05278965085744858,
+    "min_confidence": 0.022306129336357117,
+    "max_confidence": 0.21826450526714325
+  },
+  {
+    "text": "የቧምቧ ውሃ ተቋርጧል።",
+    "avg_confidence": 0.04622678831219673,
+    "min_confidence": 0.022025879472494125,
+    "max_confidence": 0.11106958240270615
+  },
+  {
+    "text": "ከእኛ ጋር ከሆነ ማን ይቃወመናል?",
+    "avg_confidence": 0.04704095795750618,
+    "min_confidence": 0.02358636073768139,
+    "max_confidence": 0.1036602184176445
+  },
+  {
+    "text": "ልባችሁ አይታወክ።",
+    "avg_confidence": 0.050653133541345596,
+    "min_confidence": 0.018922317773103714,
+    "max_confidence": 0.10564260184764862
+  },
+  {
+    "text": "የሴቷ በኩሏ ተገኘ።",
+    "avg_confidence": 0.04846819490194321,
+    "min_confidence": 0.024051066488027573,
+    "max_confidence": 0.11248884350061417
+  },
+  {
+    "text": "የሚሰማ ጆሮ ያለው ይስማ።",
+    "avg_confidence": 0.04770597815513611,
+    "min_confidence": 0.025542525574564934,
+    "max_confidence": 0.09743185341358185
+  },
+  {
+    "text": "እናቷ ጋር ሄደኗል።",
+    "avg_confidence": 0.04954804107546806,
+    "min_confidence": 0.023967349901795387,
+    "max_confidence": 0.17366857826709747
+  },
+  {
+    "text": "ፃረ ሞት ከባድ ነው።",
+    "avg_confidence": 0.05457725003361702,
+    "min_confidence": 0.03036315366625786,
+    "max_confidence": 0.1585347205400467
+  },
+  {
+    "text": "ሪፖርቱን በሰዓቱ አቀረበ።",
+    "avg_confidence": 0.04765750840306282,
+    "min_confidence": 0.020279385149478912,
+    "max_confidence": 0.14787007868289948
+  },
+  {
+    "text": "ተስፋ አትቁረጡ።",
+    "avg_confidence": 0.052252985537052155,
+    "min_confidence": 0.023292746394872665,
+    "max_confidence": 0.15662267804145813
+  },
+  {
+    "text": "ቀኑ በጣም ሞቃት ነው።",
+    "avg_confidence": 0.05305894464254379,
+    "min_confidence": 0.02719908207654953,
+    "max_confidence": 0.18502774834632874
+  },
+  {
+    "text": "ሳያዩ የሚያምኑ ብፁዓን ናቸው።",
+    "avg_confidence": 0.04313495382666588,
+    "min_confidence": 0.02199045568704605,
+    "max_confidence": 0.08632772415876389
+  },
+  {
+    "text": "ዎርክሾፕ ላይ ተሳተፍኩ።",
+    "avg_confidence": 0.04707708582282066,
+    "min_confidence": 0.025565048679709435,
+    "max_confidence": 0.07683958858251572
+  },
+  {
+    "text": "የሚመጣው ከቶ አይራብም።",
+    "avg_confidence": 0.055173758417367935,
+    "min_confidence": 0.02411431074142456,
+    "max_confidence": 0.2042960375547409
+  },
+  {
+    "text": "ሕይወት አገኛችሁ።",
+    "avg_confidence": 0.052298422902822495,
+    "min_confidence": 0.02289944514632225,
+    "max_confidence": 0.1449679732322693
+  },
+  {
+    "text": "እነዚህን ቃላት አኑራቸው።",
+    "avg_confidence": 0.052309539169073105,
+    "min_confidence": 0.029029304161667824,
+    "max_confidence": 0.15100575983524323
+  },
+  {
+    "text": "ተስፋችን እርሱ ነው።",
+    "avg_confidence": 0.04998280853033066,
+    "min_confidence": 0.022108832374215126,
+    "max_confidence": 0.14401064813137054
+  },
+  {
+    "text": "ወንዙ በሃይል ይፈሳል።",
+    "avg_confidence": 0.04838913679122925,
+    "min_confidence": 0.020645231008529663,
+    "max_confidence": 0.10121090710163116
+  },
+  {
+    "text": "የእግዚአብሔር በግ።",
+    "avg_confidence": 0.04531852528452873,
+    "min_confidence": 0.022994153201580048,
+    "max_confidence": 0.10600299388170242
+  },
+  {
+    "text": "ፌስቡክ መጠቀም አቁሜያለሁ።",
+    "avg_confidence": 0.04574112221598625,
+    "min_confidence": 0.02555910125374794,
+    "max_confidence": 0.1176329255104065
+  }
+]

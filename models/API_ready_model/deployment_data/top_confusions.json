@@ -1,0 +1,352 @@
+[
+  {
+    "target": " ",
+    "predicted": " ",
+    "count": 121796,
+    "rate": 0.6436,
+    "total_occurrences": 189236
+  },
+  {
+    "target": "።",
+    "predicted": "።",
+    "count": 38060,
+    "rate": 0.8611,
+    "total_occurrences": 44199
+  },
+  {
+    "target": "ን",
+    "predicted": "ን",
+    "count": 30047,
+    "rate": 0.6579,
+    "total_occurrences": 45668
+  },
+  {
+    "target": "ል",
+    "predicted": "ል",
+    "count": 22698,
+    "rate": 0.7128,
+    "total_occurrences": 31843
+  },
+  {
+    "target": "ት",
+    "predicted": "ት",
+    "count": 22224,
+    "rate": 0.6237,
+    "total_occurrences": 35635
+  },
+  {
+    "target": "ው",
+    "predicted": "ው",
+    "count": 21670,
+    "rate": 0.6958,
+    "total_occurrences": 31146
+  },
+  {
+    "target": "አ",
+    "predicted": "አ",
+    "count": 20091,
+    "rate": 0.653,
+    "total_occurrences": 30767
+  },
+  {
+    "target": "እ",
+    "predicted": "እ",
+    "count": 19085,
+    "rate": 0.7297,
+    "total_occurrences": 26156
+  },
+  {
+    "target": "በ",
+    "predicted": "በ",
+    "count": 18315,
+    "rate": 0.6239,
+    "total_occurrences": 29358
+  },
+  {
+    "target": "ም",
+    "predicted": "ም",
+    "count": 18170,
+    "rate": 0.6625,
+    "total_occurrences": 27427
+  },
+  {
+    "target": "ር",
+    "predicted": "ር",
+    "count": 17690,
+    "rate": 0.6524,
+    "total_occurrences": 27114
+  },
+  {
+    "target": "ነ",
+    "predicted": "ነ",
+    "count": 16543,
+    "rate": 0.6554,
+    "total_occurrences": 25242
+  },
+  {
+    "target": "ለ",
+    "predicted": "ለ",
+    "count": 16387,
+    "rate": 0.6217,
+    "total_occurrences": 26357
+  },
+  {
+    "target": "መ",
+    "predicted": "መ",
+    "count": 16072,
+    "rate": 0.637,
+    "total_occurrences": 25229
+  },
+  {
+    "target": "ይ",
+    "predicted": "ይ",
+    "count": 16027,
+    "rate": 0.6207,
+    "total_occurrences": 25821
+  },
+  {
+    "target": "ስ",
+    "predicted": "ስ",
+    "count": 15317,
+    "rate": 0.6338,
+    "total_occurrences": 24166
+  },
+  {
+    "target": "ተ",
+    "predicted": "ተ",
+    "count": 11248,
+    "rate": 0.6124,
+    "total_occurrences": 18368
+  },
+  {
+    "target": "የ",
+    "predicted": "የ",
+    "count": 10921,
+    "rate": 0.5981,
+    "total_occurrences": 18260
+  },
+  {
+    "target": "ብ",
+    "predicted": "ብ",
+    "count": 10854,
+    "rate": 0.6565,
+    "total_occurrences": 16533
+  },
+  {
+    "target": "ና",
+    "predicted": "ና",
+    "count": 9781,
+    "rate": 0.618,
+    "total_occurrences": 15827
+  },
+  {
+    "target": "ላ",
+    "predicted": "ላ",
+    "count": 9399,
+    "rate": 0.6204,
+    "total_occurrences": 15150
+  },
+  {
+    "target": "ሁ",
+    "predicted": "ሁ",
+    "count": 8704,
+    "rate": 0.72,
+    "total_occurrences": 12089
+  },
+  {
+    "target": "ደ",
+    "predicted": "ደ",
+    "count": 7990,
+    "rate": 0.6161,
+    "total_occurrences": 12969
+  },
+  {
+    "target": "ራ",
+    "predicted": "ራ",
+    "count": 7587,
+    "rate": 0.6343,
+    "total_occurrences": 11961
+  },
+  {
+    "target": "ድ",
+    "predicted": "ድ",
+    "count": 7471,
+    "rate": 0.6114,
+    "total_occurrences": 12220
+  },
+  {
+    "target": "ች",
+    "predicted": "ች",
+    "count": 7329,
+    "rate": 0.5682,
+    "total_occurrences": 12899
+  },
+  {
+    "target": "ያ",
+    "predicted": "ያ",
+    "count": 7291,
+    "rate": 0.6155,
+    "total_occurrences": 11845
+  },
+  {
+    "target": "ሰ",
+    "predicted": "ሰ",
+    "count": 7132,
+    "rate": 0.6125,
+    "total_occurrences": 11644
+  },
+  {
+    "target": "ማ",
+    "predicted": "ማ",
+    "count": 7011,
+    "rate": 0.5972,
+    "total_occurrences": 11740
+  },
+  {
+    "target": "ወ",
+    "predicted": "ወ",
+    "count": 6996,
+    "rate": 0.5851,
+    "total_occurrences": 11956
+  },
+  {
+    "target": "ግ",
+    "predicted": "ግ",
+    "count": 6789,
+    "rate": 0.6181,
+    "total_occurrences": 10983
+  },
+  {
+    "target": "ህ",
+    "predicted": "ህ",
+    "count": 6578,
+    "rate": 0.6136,
+    "total_occurrences": 10721
+  },
+  {
+    "target": "ታ",
+    "predicted": "ታ",
+    "count": 6285,
+    "rate": 0.6585,
+    "total_occurrences": 9544
+  },
+  {
+    "target": "ክ",
+    "predicted": "ክ",
+    "count": 6117,
+    "rate": 0.6556,
+    "total_occurrences": 9331
+  },
+  {
+    "target": "ከ",
+    "predicted": "ከ",
+    "count": 5816,
+    "rate": 0.6019,
+    "total_occurrences": 9663
+  },
+  {
+    "target": "ረ",
+    "predicted": "ረ",
+    "count": 5772,
+    "rate": 0.6562,
+    "total_occurrences": 8796
+  },
+  {
+    "target": "ጣ",
+    "predicted": "ጣ",
+    "count": 5384,
+    "rate": 0.6712,
+    "total_occurrences": 8022
+  },
+  {
+    "target": "ገ",
+    "predicted": "ገ",
+    "count": 4750,
+    "rate": 0.5809,
+    "total_occurrences": 8177
+  },
+  {
+    "target": "ፍ",
+    "predicted": "ፍ",
+    "count": 4690,
+    "rate": 0.6282,
+    "total_occurrences": 7466
+  },
+  {
+    "target": "ቅ",
+    "predicted": "ቅ",
+    "count": 4690,
+    "rate": 0.6391,
+    "total_occurrences": 7338
+  },
+  {
+    "target": "ን",
+    "predicted": " ",
+    "count": 4661,
+    "rate": 0.1021,
+    "total_occurrences": 45668
+  },
+  {
+    "target": "ት",
+    "predicted": " ",
+    "count": 4610,
+    "rate": 0.1294,
+    "total_occurrences": 35635
+  },
+  {
+    "target": "ጠ",
+    "predicted": "ጠ",
+    "count": 4179,
+    "rate": 0.6367,
+    "total_occurrences": 6564
+  },
+  {
+    "target": "ቀ",
+    "predicted": "ቀ",
+    "count": 4069,
+    "rate": 0.5862,
+    "total_occurrences": 6941
+  },
+  {
+    "target": "ሳ",
+    "predicted": "ሳ",
+    "count": 3859,
+    "rate": 0.6152,
+    "total_occurrences": 6273
+  },
+  {
+    "target": "ባ",
+    "predicted": "ባ",
+    "count": 3822,
+    "rate": 0.5726,
+    "total_occurrences": 6675
+  },
+  {
+    "target": " ",
+    "predicted": "አ",
+    "count": 3739,
+    "rate": 0.0198,
+    "total_occurrences": 189236
+  },
+  {
+    "target": " ",
+    "predicted": "ት",
+    "count": 3727,
+    "rate": 0.0197,
+    "total_occurrences": 189236
+  },
+  {
+    "target": "ፈ",
+    "predicted": "ፈ",
+    "count": 3635,
+    "rate": 0.625,
+    "total_occurrences": 5816
+  },
+  {
+    "target": "ኝ",
+    "predicted": "ኝ",
+    "count": 3624,
+    "rate": 0.7578,
+    "total_occurrences": 4782
+  }
+]
