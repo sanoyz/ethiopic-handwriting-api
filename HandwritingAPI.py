@@ -78,8 +78,8 @@ USE_POSITION_ENCODING = True
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Default paths - USE ABSOLUTE WINDOWS PATHS
-DEFAULT_CHECKPOINT = r"C:\YonAPI\models\API_ready_model\best_model.pt"
-DEFAULT_DEPLOYMENT = r"C:\YonAPI\deployment_data"
+DEFAULT_CHECKPOINT = os.getenv("MODEL_PATH", str(BASE_DIR / "models" / "API_ready_model" / "best_model.pt"))
+DEFAULT_DEPLOYMENT = os.getenv("DEPLOYMENT_DIR", str(BASE_DIR / "deployment_data"))
 
 
 # ============================================================
