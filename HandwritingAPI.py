@@ -77,6 +77,9 @@ USE_POSITION_ENCODING = True
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+# Define BASE_DIR - the root directory 
+BASE_DIR = Path(__file__).parent.absolute()  # or Path.cwd() for current working directory
+
 # Default paths - USE ABSOLUTE WINDOWS PATHS
 DEFAULT_CHECKPOINT = os.getenv("MODEL_PATH", str(BASE_DIR / "models" / "API_ready_model" / "best_model.pt"))
 DEFAULT_DEPLOYMENT = os.getenv("DEPLOYMENT_DIR", str(BASE_DIR / "deployment_data"))
