@@ -78,9 +78,10 @@ USE_POSITION_ENCODING = True
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Define BASE_DIR - the root directory 
-BASE_DIR = Path(__file__).parent.absolute()
+BASE_DIR = Path(__file__).parent.absolute()  # or Path.cwd() for current working directory
 
-# Default paths - USE ENVIRONMENT VARIABLES FIRST
+# Default paths - USE ABSOLUTE WINDOWS PATHS
+
 DEFAULT_CHECKPOINT = os.getenv("MODEL_PATH", str(BASE_DIR / "models" / "API_ready_model" / "best_model.pt"))
 DEFAULT_DEPLOYMENT = os.getenv("DEPLOYMENT_DIR", str(BASE_DIR / "deployment_data"))
 
@@ -929,10 +930,10 @@ class HandwritingInferenceEngine:
 
 
 # ============================================================
-# HTML CONTENT - FIXED: Proper model loading state sync
+# HTML CONTENT
 # ============================================================
 
-def get_html_content(ws_port: int, default_checkpoint: str = "", default_deployment: str = "", host: str = "localhost", model_preloaded: bool = False) -> str:
+def get_html_content(ws_port: int, default_checkpoint: str = "", default_deployment: str = "") -> str:
     return f'''<!DOCTYPE html>
 <html>
 <head>
@@ -1086,15 +1087,10 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
 
 <script>
     let allStrokes = [], currentStroke = [], isDrawing = false;
-    let ws = null, modelLoaded = {str(model_preloaded).lower()};
+    let ws = null, modelLoaded = false;
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
     const MAX_STROKES = 60;
-    
-    // FIXED: Use dynamic host and port
-    const wsHost = '{host}';
-    const wsPort = {ws_port};
-    const wsUrl = `ws://${{wsHost}}:${{wsPort}}`;
     
     const canvas = document.getElementById('handwritingCanvas');
     const ctx = canvas.getContext('2d');
@@ -1106,46 +1102,32 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
     ctx.lineJoin = 'round';
     ctx.lineWidth = 2;
     
-    // FIXED: Central function to update UI based on model state
-    function updateModelUI(loaded, vocab_size = null) {{
-        modelLoaded = loaded;
-        const statusEl = document.getElementById('modelStatus');
-        const recognizeBtn = document.getElementById('recognizeBtn');
-        
-        if (loaded) {{
-            statusEl.innerHTML = `✅ Model ready (vocab: ${{vocab_size || '?'}}, max_strokes: 60)`;
-            statusEl.className = 'model-info loaded';
-            // FIXED: Enable the recognize button when model is loaded
-            recognizeBtn.disabled = false;
-        }} else {{
-            statusEl.innerHTML = '❌ Model not loaded';
-            statusEl.className = 'model-info';
-            // FIXED: Disable the recognize button when model is not loaded
-            recognizeBtn.disabled = true;
-        }}
-    }}
-    
     function connectWebSocket() {{
-        ws = new WebSocket(wsUrl);
+        const wsPort = {ws_port};
+        const wsHost = window.location.hostname;
+	const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+	ws = new WebSocket(`${wsProtocol}//${wsHost}:${wsPort}`);
         ws.onopen = () => {{
             document.getElementById('connectionStatus').textContent = 'Connected';
             document.getElementById('connectionStatus').className = 'connection-status connected';
             showStatus('Connected to server', 'success');
             reconnectAttempts = 0;
-            // FIXED: Check status immediately on connection
-            sendCommand('status');
         }};
         ws.onmessage = (event) => {{
             const data = JSON.parse(event.data);
             if (data.type === 'model_loaded') {{
                 if (data.success) {{
-                    updateModelUI(true, data.vocab_size);
-                    document.getElementById('pathInfo').innerHTML = `📁 Deployment data: ${{data.deployment_loaded ? '✅ Loaded' : '⚠️ Not loaded'}}`;
-                    showStatus('✅ Model loaded successfully!', 'success');
+                    modelLoaded = true;
+                    document.getElementById('modelStatus').innerHTML = `Model ready (vocab: ${{data.vocab_size}}, max_strokes: 60)`;
+                    document.getElementById('modelStatus').className = 'model-info loaded';
+                    document.getElementById('pathInfo').innerHTML = `Deployment data: ${{data.deployment_loaded ? 'Loaded' : 'Not loaded'}}`;
+                    showStatus('Model loaded successfully!', 'success');
+                    document.getElementById('recognizeBtn').disabled = false;
                 }} else {{
-                    updateModelUI(false);
-                    document.getElementById('modelStatus').innerHTML = `❌ Error: ${{data.error}}`;
+                    modelLoaded = false;
+                    document.getElementById('modelStatus').innerHTML = `Error: ${{data.error}}`;
                     document.getElementById('modelStatus').className = 'model-info error';
+                    document.getElementById('recognizeBtn').disabled = true;
                 }}
             }} else if (data.type === 'recognition_result') {{
                 if (data.success) {{
@@ -1175,16 +1157,22 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
                     document.getElementById('confidenceValue').textContent = `${{data.confidence}}%`;
                     document.getElementById('strokesValue').textContent = data.total_strokes || 0;
                     document.getElementById('pointsValue').textContent = data.total_points || 0;
-                    showStatus(`✅ Recognized: "${{data.text}}"`, 'success');
+                    showStatus(`Recognized: "${{data.text}}"`, 'success');
                 }} else {{
                     document.getElementById('resultText').textContent = 'Error';
-                    showStatus(`❌ Error: ${{data.error}}`, 'error');
+                    showStatus(`Error: ${{data.error}}`, 'error');
                 }}
             }} else if (data.type === 'status') {{
                 if (data.status === 'loaded') {{
-                    updateModelUI(true, data.vocab_size);
+                    modelLoaded = true;
+                    document.getElementById('modelStatus').innerHTML = `Ready (vocab: ${{data.vocab_size}})`;
+                    document.getElementById('modelStatus').className = 'model-info loaded';
+                    document.getElementById('recognizeBtn').disabled = false;
                 }} else {{
-                    updateModelUI(false);
+                    modelLoaded = false;
+                    document.getElementById('modelStatus').innerHTML = 'Model not loaded';
+                    document.getElementById('modelStatus').className = 'model-info';
+                    document.getElementById('recognizeBtn').disabled = true;
                 }}
             }}
         }};
@@ -1221,16 +1209,11 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
             showStatus('Please enter a checkpoint path', 'error');
             return;
         }}
-        showStatus('⏳ Loading model...', 'info');
-        document.getElementById('modelStatus').innerHTML = '⏳ Loading...';
-        document.getElementById('modelStatus').className = 'model-info';
+        showStatus('Loading model...', 'info');
         sendCommand('load_model', {{ checkpoint_path: checkpointPath, deployment_data_path: deploymentPath }});
     }}
     
-    function checkStatus() {{ 
-        sendCommand('status'); 
-        showStatus('Checking status...', 'info');
-    }}
+    function checkStatus() {{ sendCommand('status'); }}
     
     function getPressure(e) {{ return e.pressure !== undefined ? Math.min(1, Math.max(0, e.pressure)) : 0.6; }}
     function getTilt(e) {{ return {{ tiltX: e.tiltX || 0, tiltY: e.tiltY || 0 }}; }}
@@ -1364,11 +1347,8 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
     
     function recognize() {{
         if (allStrokes.length === 0) {{ showStatus('Write something first!', 'warning'); return; }}
-        if (!modelLoaded) {{ 
-            showStatus('Please load a model first! Click "Load Model" or check status.', 'error'); 
-            return; 
-        }}
-        showStatus('⏳ Recognizing...', 'info');
+        if (!modelLoaded) {{ showStatus('Please load a model first!', 'error'); return; }}
+        showStatus('Recognizing...', 'info');
         document.getElementById('resultText').textContent = 'Processing...';
         sendCommand('recognize', {{ strokes: allStrokes }});
     }}
@@ -1406,8 +1386,7 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
         if (e.key === 'Enter') loadModel();
     }});
     
-    // FIXED: Initialize UI based on preloaded state - DO NOT force disable here
-    updateModelUI({str(model_preloaded).lower()});
+    document.getElementById('recognizeBtn').disabled = true;
     connectWebSocket();
     showStatus('Ready - Write naturally with your pen', 'success');
 </script>
@@ -1436,46 +1415,27 @@ app.add_middleware(
 
 # Global inference engine
 inference_engine = None
-model_preloaded = False
-ws_port_actual = 8766
 
 
 @app.on_event("startup")
 async def startup_event():
     """Load model on startup"""
-    global inference_engine, model_preloaded
-    
-    print(f"\n[INFO] Starting up...")
-    print(f"[INFO] BASE_DIR: {BASE_DIR}")
-    print(f"[INFO] MODEL_PATH from env: {os.getenv('MODEL_PATH', 'NOT SET')}")
-    print(f"[INFO] DEPLOYMENT_DIR from env: {os.getenv('DEPLOYMENT_DIR', 'NOT SET')}")
-    print(f"[INFO] Default checkpoint: {DEFAULT_CHECKPOINT}")
-    print(f"[INFO] Default deployment: {DEFAULT_DEPLOYMENT}")
-    print(f"[INFO] Checkpoint exists: {os.path.exists(DEFAULT_CHECKPOINT)}")
+    global inference_engine
     
     if os.path.exists(DEFAULT_CHECKPOINT):
         try:
-            deployment_path = DEFAULT_DEPLOYMENT if os.path.exists(DEFAULT_DEPLOYMENT) else None
             inference_engine = HandwritingInferenceEngine(
                 DEFAULT_CHECKPOINT,
-                deployment_path
+                DEFAULT_DEPLOYMENT if os.path.exists(DEFAULT_DEPLOYMENT) else None
             )
-            model_preloaded = True
             print(f"[OK] Model loaded automatically on startup")
         except Exception as e:
             print(f"[ERROR] Failed to load model on startup: {e}")
-            model_preloaded = False
-    else:
-        print(f"[WARNING] Model checkpoint not found at startup. Use the UI to load it.")
-        model_preloaded = False
 
 
 @app.get("/")
 async def root():
-    global ws_port_actual, model_preloaded
-    # Use localhost for local, 0.0.0.0 for Render
-    host = "0.0.0.0" if os.getenv("RENDER") else "localhost"
-    return HTMLResponse(get_html_content(ws_port_actual, DEFAULT_CHECKPOINT, DEFAULT_DEPLOYMENT, host, model_preloaded))
+    return HTMLResponse(get_html_content(8766, DEFAULT_CHECKPOINT, DEFAULT_DEPLOYMENT))
 
 
 @app.get("/health")
@@ -1484,9 +1444,7 @@ async def health_check():
         "status": "healthy",
         "model_loaded": inference_engine is not None,
         "device": DEVICE,
-        "max_strokes": MAX_STROKES,
-        "checkpoint_path": DEFAULT_CHECKPOINT,
-        "deployment_path": DEFAULT_DEPLOYMENT
+        "max_strokes": MAX_STROKES
     }
 
 
@@ -1575,30 +1533,8 @@ websocket_engine = None
 
 async def websocket_handler(websocket):
     """Handle WebSocket connections"""
-    global websocket_engine, inference_engine
-    
+    global websocket_engine
     print("[INFO] WebSocket client connected")
-    
-    # FIXED: Send current model status immediately on connection
-    if inference_engine is not None:
-        status_msg = {
-            "type": "status",
-            "status": "loaded",
-            "vocab_size": inference_engine.vocab_size,
-            "deployment_loaded": True
-        }
-    else:
-        status_msg = {
-            "type": "status",
-            "status": "not_loaded",
-            "vocab_size": 0,
-            "deployment_loaded": False
-        }
-    
-    try:
-        await websocket.send(json.dumps(status_msg))
-    except:
-        pass
     
     try:
         async for message in websocket:
@@ -1623,9 +1559,6 @@ async def websocket_handler(websocket):
                         deployment_data_path if os.path.exists(deployment_data_path) else None
                     )
                     
-                    # Update global inference engine
-                    inference_engine = websocket_engine
-                    
                     await websocket.send(json.dumps({
                         "type": "model_loaded",
                         "success": True,
@@ -1643,10 +1576,7 @@ async def websocket_handler(websocket):
                     }))
             
             elif command == "recognize":
-                # FIXED: Check both engines
-                engine = websocket_engine if websocket_engine is not None else inference_engine
-                
-                if engine is None:
+                if websocket_engine is None:
                     await websocket.send(json.dumps({
                         "type": "recognition_result",
                         "success": False,
@@ -1658,7 +1588,7 @@ async def websocket_handler(websocket):
                 print(f"[INFO] Recognizing {len(strokes)} strokes")
                 
                 try:
-                    result = engine.recognize(strokes)
+                    result = websocket_engine.recognize(strokes)
                     await websocket.send(json.dumps({
                         "type": "recognition_result",
                         "success": True,
@@ -1681,21 +1611,13 @@ async def websocket_handler(websocket):
                     }))
             
             elif command == "status":
-                engine = websocket_engine if websocket_engine is not None else inference_engine
-                if engine is not None:
-                    await websocket.send(json.dumps({
-                        "type": "status",
-                        "status": "loaded",
-                        "vocab_size": engine.vocab_size,
-                        "deployment_loaded": True
-                    }))
-                else:
-                    await websocket.send(json.dumps({
-                        "type": "status",
-                        "status": "not_loaded",
-                        "vocab_size": 0,
-                        "deployment_loaded": False
-                    }))
+                status = "loaded" if websocket_engine else "not_loaded"
+                vocab = websocket_engine.vocab_size if websocket_engine else 0
+                await websocket.send(json.dumps({
+                    "type": "status",
+                    "status": status,
+                    "vocab_size": vocab
+                }))
                 
     except Exception as e:
         print(f"[ERROR] WebSocket error: {e}")
@@ -1714,10 +1636,8 @@ async def start_websocket_server(port: int):
 
 async def main():
     """Main entry point"""
-    global ws_port_actual
-    
-    # Find available ports - use 0.0.0.0 for Render compatibility
-    ws_port_actual = find_available_port(8766)
+    # Find available ports
+    ws_port = find_available_port(8766)
     http_port = find_available_port(8081)
     
     print("\n" + "=" * 70)
@@ -1725,7 +1645,7 @@ async def main():
     print("  Enhanced Multi-Head Memory + Position Encoding (MAX_STROKES=60)")
     print("=" * 70)
     print(f"  Device: {DEVICE}")
-    print(f"  WebSocket: ws://0.0.0.0:{ws_port_actual}")
+    print(f"  WebSocket: ws://0.0.0.0:{ws_port}")
     print(f"  HTTP API: http://0.0.0.0:{http_port}")
     print(f"  Documentation: http://0.0.0.0:{http_port}/docs")
     print("=" * 70)
@@ -1754,7 +1674,7 @@ async def main():
     print("")
     
     # Start WebSocket server
-    ws_task = asyncio.create_task(start_websocket_server(ws_port_actual))
+    ws_task = asyncio.create_task(start_websocket_server(ws_port))
     
     # Start HTTP server with uvicorn
     config = uvicorn.Config(
