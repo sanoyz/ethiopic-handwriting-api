@@ -55,7 +55,6 @@ if sys.platform == "win32":
 # ============================================================
 # DEFINE BASE DIRECTORY
 # ============================================================
-# Get the absolute path to the directory containing this script
 BASE_DIR = Path(__file__).parent.absolute()
 
 # ============================================================
@@ -83,7 +82,7 @@ USE_POSITION_ENCODING = True
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Default paths - Allow environment variables to override paths (useful for Render)
+# Default paths - Allow environment variables to override paths
 DEFAULT_CHECKPOINT = os.getenv("MODEL_PATH", str(BASE_DIR / "models" / "API_ready_model" / "best_model.pt"))
 DEFAULT_DEPLOYMENT = os.getenv("DEPLOYMENT_DIR", str(BASE_DIR / "deployment_data"))
 
@@ -937,7 +936,7 @@ class HandwritingInferenceEngine:
 
 
 # ============================================================
-# HTML CONTENT - FIXED: Model loaded state is sent to UI on connection
+# HTML CONTENT - FIXED: Shows model paths and handles loaded state
 # ============================================================
 
 def get_html_content(ws_port: int, default_checkpoint: str = "", default_deployment: str = "", host: str = "localhost", model_preloaded: bool = False) -> str:
@@ -1100,7 +1099,6 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
     const maxReconnectAttempts = 5;
     const MAX_STROKES = 60;
     
-    // FIXED: Use host and port from backend
     const wsHost = '{host}';
     const wsPort = {ws_port};
     const wsUrl = `ws://${{wsHost}}:${{wsPort}}`;
@@ -1123,15 +1121,15 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
         const recognizeBtn = document.getElementById('recognizeBtn');
         
         if (loaded) {{
-            statusEl.innerHTML = `Model ready (vocab: ${{vocab_size || '?'}}, max_strokes: 60)`;
+            statusEl.innerHTML = `✅ Model ready (vocab: ${{vocab_size || '?'}}, max_strokes: 60)`;
             statusEl.className = 'model-info loaded';
             badgeEl.style.display = 'inline';
             recognizeBtn.disabled = false;
             if (deployment_loaded !== null) {{
-                document.getElementById('pathInfo').innerHTML = `Deployment data: ${{deployment_loaded ? '✓ Loaded' : '✗ Not loaded (using defaults)'}}`;
+                document.getElementById('pathInfo').innerHTML = `📁 Deployment data: ${{deployment_loaded ? '✅ Loaded' : '⚠️ Not loaded (using defaults)'}}`;
             }}
         }} else {{
-            statusEl.innerHTML = 'Model not loaded';
+            statusEl.innerHTML = '❌ Model not loaded';
             statusEl.className = 'model-info';
             badgeEl.style.display = 'none';
             recognizeBtn.disabled = true;
@@ -1145,7 +1143,6 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
             document.getElementById('connectionStatus').className = 'connection-status connected';
             showStatus('Connected to server', 'success');
             reconnectAttempts = 0;
-            
             // Check status immediately to see if model is loaded
             sendCommand('status');
         }};
@@ -1154,10 +1151,10 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
             if (data.type === 'model_loaded') {{
                 if (data.success) {{
                     updateModelUI(true, data.vocab_size, data.deployment_loaded);
-                    showStatus('Model loaded successfully!', 'success');
+                    showStatus('✅ Model loaded successfully!', 'success');
                 }} else {{
                     updateModelUI(false);
-                    document.getElementById('modelStatus').innerHTML = `Error: ${{data.error}}`;
+                    document.getElementById('modelStatus').innerHTML = `❌ Error: ${{data.error}}`;
                     document.getElementById('modelStatus').className = 'model-info error';
                 }}
             }} else if (data.type === 'recognition_result') {{
@@ -1188,10 +1185,10 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
                     document.getElementById('confidenceValue').textContent = `${{data.confidence}}%`;
                     document.getElementById('strokesValue').textContent = data.total_strokes || 0;
                     document.getElementById('pointsValue').textContent = data.total_points || 0;
-                    showStatus(`Recognized: "${{data.text}}"`, 'success');
+                    showStatus(`✅ Recognized: "${{data.text}}"`, 'success');
                 }} else {{
                     document.getElementById('resultText').textContent = 'Error';
-                    showStatus(`Error: ${{data.error}}`, 'error');
+                    showStatus(`❌ Error: ${{data.error}}`, 'error');
                 }}
             }} else if (data.type === 'status') {{
                 if (data.status === 'loaded') {{
@@ -1234,8 +1231,8 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
             showStatus('Please enter a checkpoint path', 'error');
             return;
         }}
-        showStatus('Loading model...', 'info');
-        document.getElementById('modelStatus').innerHTML = 'Loading...';
+        showStatus('⏳ Loading model...', 'info');
+        document.getElementById('modelStatus').innerHTML = '⏳ Loading...';
         document.getElementById('modelStatus').className = 'model-info';
         sendCommand('load_model', {{ checkpoint_path: checkpointPath, deployment_data_path: deploymentPath }});
     }}
@@ -1381,7 +1378,7 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
             showStatus('Please load a model first! Click "Load Model" or check status.', 'error'); 
             return; 
         }}
-        showStatus('Recognizing...', 'info');
+        showStatus('⏳ Recognizing...', 'info');
         document.getElementById('resultText').textContent = 'Processing...';
         sendCommand('recognize', {{ strokes: allStrokes }});
     }}
@@ -1432,7 +1429,6 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
 # FASTAPI APPLICATION
 # ============================================================
 
-# Create FastAPI app
 app = FastAPI(
     title="Ethiopic Handwriting Recognition API",
     description=f"API for recognizing Ethiopic characters (MAX_STROKES={MAX_STROKES})",
@@ -1451,6 +1447,7 @@ app.add_middleware(
 inference_engine = None
 actual_ws_port = WEBSOCKET_PORT
 model_preloaded = False
+websocket_connections = []
 
 
 @app.on_event("startup")
@@ -1473,6 +1470,10 @@ async def startup_event():
             )
             model_preloaded = True
             print(f"[OK] Model loaded automatically on startup")
+            
+            # Broadcast model loaded status to all connected WebSocket clients
+            await broadcast_model_status()
+            
         except Exception as e:
             print(f"[ERROR] Failed to load model on startup: {e}")
             model_preloaded = False
@@ -1481,11 +1482,32 @@ async def startup_event():
         model_preloaded = False
 
 
+async def broadcast_model_status():
+    """Broadcast model status to all connected WebSocket clients"""
+    global websocket_connections, inference_engine
+    
+    if not websocket_connections:
+        return
+    
+    status_msg = {
+        "type": "status",
+        "status": "loaded" if inference_engine else "not_loaded",
+        "vocab_size": inference_engine.vocab_size if inference_engine else 0,
+        "deployment_loaded": True
+    }
+    
+    for ws in websocket_connections[:]:
+        try:
+            await ws.send(json.dumps(status_msg))
+        except:
+            # Remove dead connections
+            websocket_connections.remove(ws)
+
+
 @app.get("/")
 async def root():
     """Serve the main HTML page"""
     global actual_ws_port, model_preloaded
-    # Pass model_preloaded state to the HTML
     return HTMLResponse(get_html_content(
         actual_ws_port, 
         DEFAULT_CHECKPOINT, 
@@ -1592,8 +1614,23 @@ websocket_engine = None
 
 async def websocket_handler(websocket):
     """Handle WebSocket connections"""
-    global websocket_engine
-    print("[INFO] WebSocket client connected")
+    global websocket_engine, websocket_connections
+    
+    # Add connection to list
+    websocket_connections.append(websocket)
+    print(f"[INFO] WebSocket client connected (total: {len(websocket_connections)})")
+    
+    # Send current model status immediately
+    status_msg = {
+        "type": "status",
+        "status": "loaded" if inference_engine else "not_loaded",
+        "vocab_size": inference_engine.vocab_size if inference_engine else 0,
+        "deployment_loaded": True
+    }
+    try:
+        await websocket.send(json.dumps(status_msg))
+    except:
+        pass
     
     try:
         async for message in websocket:
@@ -1618,6 +1655,10 @@ async def websocket_handler(websocket):
                         deployment_data_path if os.path.exists(deployment_data_path) else None
                     )
                     
+                    # Update global inference engine
+                    global inference_engine
+                    inference_engine = websocket_engine
+                    
                     await websocket.send(json.dumps({
                         "type": "model_loaded",
                         "success": True,
@@ -1635,7 +1676,6 @@ async def websocket_handler(websocket):
                     }))
             
             elif command == "recognize":
-                # Use the WebSocket engine first, fall back to the global engine
                 engine = websocket_engine if websocket_engine is not None else inference_engine
                 
                 if engine is None:
@@ -1673,7 +1713,6 @@ async def websocket_handler(websocket):
                     }))
             
             elif command == "status":
-                # Check both engines
                 engine = websocket_engine if websocket_engine is not None else inference_engine
                 status = "loaded" if engine else "not_loaded"
                 vocab = engine.vocab_size if engine else 0
@@ -1681,18 +1720,23 @@ async def websocket_handler(websocket):
                     "type": "status",
                     "status": status,
                     "vocab_size": vocab,
-                    "deployment_loaded": True  # We don't track this per-engine
+                    "deployment_loaded": True
                 }))
                 
     except Exception as e:
         print(f"[ERROR] WebSocket error: {e}")
+    finally:
+        # Remove connection from list
+        if websocket in websocket_connections:
+            websocket_connections.remove(websocket)
+        print(f"[INFO] WebSocket client disconnected (total: {len(websocket_connections)})")
 
 
 async def start_websocket_server(port: int):
     """Start WebSocket server"""
     async with websockets.serve(websocket_handler, "0.0.0.0", port):
         print(f"[OK] WebSocket server running on ws://0.0.0.0:{port}")
-        await asyncio.Future()  # Run forever
+        await asyncio.Future()
 
 
 # ============================================================
@@ -1703,14 +1747,11 @@ async def main():
     """Main entry point"""
     global actual_ws_port, WEBSOCKET_PORT, HTTP_PORT
     
-    # Allow Render to set the port via environment variable
     http_port = int(os.getenv("PORT", HTTP_PORT))
     
-    # Find an available port for WebSocket, but prefer the configured one
     try:
         actual_ws_port = find_available_port(WEBSOCKET_PORT)
     except RuntimeError:
-        # If the preferred port is not available, try a different range
         actual_ws_port = find_available_port(WEBSOCKET_PORT + 10)
     
     print("\n" + "=" * 70)
@@ -1734,7 +1775,6 @@ async def main():
     print("=" * 70)
     print("\n  Press Ctrl+C to stop\n")
     
-    # Check default paths
     if os.path.exists(DEFAULT_CHECKPOINT):
         print(f"[OK] Model checkpoint found: {DEFAULT_CHECKPOINT}")
     else:
@@ -1746,10 +1786,8 @@ async def main():
         print(f"[WARNING] Deployment data not found. Using default corrections.")
     print("")
     
-    # Start WebSocket server
     ws_task = asyncio.create_task(start_websocket_server(actual_ws_port))
     
-    # Start HTTP server with uvicorn
     config = uvicorn.Config(
         app,
         host="0.0.0.0",
