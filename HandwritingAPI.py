@@ -53,6 +53,12 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 # ============================================================
+# DEFINE BASE DIRECTORY - FIXED: Added this
+# ============================================================
+# Get the absolute path to the directory containing this script
+BASE_DIR = Path(__file__).parent.absolute()
+
+# ============================================================
 # CONSTANTS - MUST MATCH TRAINING CONFIGURATION (MAX_STROKES=60)
 # ============================================================
 RESAMPLE_N = 32
@@ -77,14 +83,17 @@ USE_POSITION_ENCODING = True
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Define BASE_DIR - the root directory 
-BASE_DIR = Path(__file__).parent.absolute()  # or Path.cwd() for current working directory
-
-# Default paths - USE ABSOLUTE WINDOWS PATHS
-
+# Default paths - FIXED: Now uses BASE_DIR properly
+# Allow environment variables to override paths (useful for Render)
 DEFAULT_CHECKPOINT = os.getenv("MODEL_PATH", str(BASE_DIR / "models" / "API_ready_model" / "best_model.pt"))
 DEFAULT_DEPLOYMENT = os.getenv("DEPLOYMENT_DIR", str(BASE_DIR / "deployment_data"))
 
+# ============================================================
+# WEBSOCKET PORT CONFIGURATION - FIXED: Use fixed port with fallback
+# ============================================================
+# Use a fixed port but with a fallback mechanism
+WEBSOCKET_PORT = int(os.getenv("WEBSOCKET_PORT", 8766))
+HTTP_PORT = int(os.getenv("PORT", 8081))  # Render uses PORT environment variable
 
 # ============================================================
 # HELPER FUNCTIONS
@@ -95,7 +104,7 @@ def find_available_port(start_port: int, max_attempts: int = 10) -> int:
     for port in range(start_port, start_port + max_attempts):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(('localhost', port))
+                s.bind(('0.0.0.0', port))  # Changed from 'localhost' to '0.0.0.0' for Render
                 return port
         except OSError:
             continue
@@ -930,10 +939,10 @@ class HandwritingInferenceEngine:
 
 
 # ============================================================
-# HTML CONTENT
+# HTML CONTENT - FIXED: No hardcoded paths in the HTML itself
 # ============================================================
 
-def get_html_content(ws_port: int, default_checkpoint: str = "", default_deployment: str = "") -> str:
+def get_html_content(ws_port: int, default_checkpoint: str = "", default_deployment: str = "", host: str = "localhost") -> str:
     return f'''<!DOCTYPE html>
 <html>
 <head>
@@ -1092,6 +1101,11 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
     const maxReconnectAttempts = 5;
     const MAX_STROKES = 60;
     
+    // FIXED: Use host and port from backend
+    const wsHost = '{host}';
+    const wsPort = {ws_port};
+    const wsUrl = `ws://${{wsHost}}:${{wsPort}}`;
+    
     const canvas = document.getElementById('handwritingCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 800; canvas.height = 500;
@@ -1103,8 +1117,7 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
     ctx.lineWidth = 2;
     
     function connectWebSocket() {{
-        const wsPort = {ws_port};
-        ws = new WebSocket(`ws://localhost:${{wsPort}}`);
+        ws = new WebSocket(wsUrl);
         ws.onopen = () => {{
             document.getElementById('connectionStatus').textContent = 'Connected';
             document.getElementById('connectionStatus').className = 'connection-status connected';
@@ -1413,6 +1426,7 @@ app.add_middleware(
 
 # Global inference engine
 inference_engine = None
+actual_ws_port = WEBSOCKET_PORT
 
 
 @app.on_event("startup")
@@ -1420,20 +1434,32 @@ async def startup_event():
     """Load model on startup"""
     global inference_engine
     
+    print(f"\n[INFO] Starting up...")
+    print(f"[INFO] BASE_DIR: {BASE_DIR}")
+    print(f"[INFO] Default checkpoint: {DEFAULT_CHECKPOINT}")
+    print(f"[INFO] Default deployment: {DEFAULT_DEPLOYMENT}")
+    print(f"[INFO] Checkpoint exists: {os.path.exists(DEFAULT_CHECKPOINT)}")
+    
     if os.path.exists(DEFAULT_CHECKPOINT):
         try:
+            deployment_path = DEFAULT_DEPLOYMENT if os.path.exists(DEFAULT_DEPLOYMENT) else None
             inference_engine = HandwritingInferenceEngine(
                 DEFAULT_CHECKPOINT,
-                DEFAULT_DEPLOYMENT if os.path.exists(DEFAULT_DEPLOYMENT) else None
+                deployment_path
             )
             print(f"[OK] Model loaded automatically on startup")
         except Exception as e:
             print(f"[ERROR] Failed to load model on startup: {e}")
+    else:
+        print(f"[WARNING] Model checkpoint not found at startup. Use the UI to load it.")
 
 
 @app.get("/")
 async def root():
-    return HTMLResponse(get_html_content(8766, DEFAULT_CHECKPOINT, DEFAULT_DEPLOYMENT))
+    """Serve the main HTML page"""
+    global actual_ws_port
+    # Use the actual WebSocket port
+    return HTMLResponse(get_html_content(actual_ws_port, DEFAULT_CHECKPOINT, DEFAULT_DEPLOYMENT, "localhost"))
 
 
 @app.get("/health")
@@ -1442,7 +1468,9 @@ async def health_check():
         "status": "healthy",
         "model_loaded": inference_engine is not None,
         "device": DEVICE,
-        "max_strokes": MAX_STROKES
+        "max_strokes": MAX_STROKES,
+        "checkpoint_path": DEFAULT_CHECKPOINT,
+        "deployment_path": DEFAULT_DEPLOYMENT
     }
 
 
@@ -1623,8 +1651,8 @@ async def websocket_handler(websocket):
 
 async def start_websocket_server(port: int):
     """Start WebSocket server"""
-    async with websockets.serve(websocket_handler, "localhost", port):
-        print(f"[OK] WebSocket server running on ws://localhost:{port}")
+    async with websockets.serve(websocket_handler, "0.0.0.0", port):
+        print(f"[OK] WebSocket server running on ws://0.0.0.0:{port}")
         await asyncio.Future()  # Run forever
 
 
@@ -1634,18 +1662,26 @@ async def start_websocket_server(port: int):
 
 async def main():
     """Main entry point"""
-    # Find available ports
-    ws_port = find_available_port(8766)
-    http_port = find_available_port(8081)
+    global actual_ws_port, WEBSOCKET_PORT, HTTP_PORT
+    
+    # Allow Render to set the port via environment variable
+    http_port = int(os.getenv("PORT", HTTP_PORT))
+    
+    # Find an available port for WebSocket, but prefer the configured one
+    try:
+        actual_ws_port = find_available_port(WEBSOCKET_PORT)
+    except RuntimeError:
+        # If the preferred port is not available, try a different range
+        actual_ws_port = find_available_port(WEBSOCKET_PORT + 10)
     
     print("\n" + "=" * 70)
     print("  Ethiopic Handwriting Recognition - Unified Server")
     print("  Enhanced Multi-Head Memory + Position Encoding (MAX_STROKES=60)")
     print("=" * 70)
     print(f"  Device: {DEVICE}")
-    print(f"  WebSocket: ws://localhost:{ws_port}")
-    print(f"  HTTP API: http://localhost:{http_port}")
-    print(f"  Documentation: http://localhost:{http_port}/docs")
+    print(f"  WebSocket: ws://0.0.0.0:{actual_ws_port}")
+    print(f"  HTTP API: http://0.0.0.0:{http_port}")
+    print(f"  Documentation: http://0.0.0.0:{http_port}/docs")
     print("=" * 70)
     print("\n  Default Paths:")
     print(f"  Checkpoint: {DEFAULT_CHECKPOINT}")
@@ -1654,7 +1690,7 @@ async def main():
     print("\n  Features:")
     print("  1. REST API: /predict (file upload), /predict_json (JSON body)")
     print("  2. WebSocket: Real-time handwriting recognition")
-    print("  3. Interactive UI: http://localhost:{http_port}")
+    print("  3. Interactive UI: http://0.0.0.0:{http_port}")
     print("  4. Post-processing corrections with deployment data")
     print("=" * 70)
     print("\n  Press Ctrl+C to stop\n")
@@ -1672,12 +1708,12 @@ async def main():
     print("")
     
     # Start WebSocket server
-    ws_task = asyncio.create_task(start_websocket_server(ws_port))
+    ws_task = asyncio.create_task(start_websocket_server(actual_ws_port))
     
     # Start HTTP server with uvicorn
     config = uvicorn.Config(
         app,
-        host="0.0.0.0",
+        host="0.0.0.0",  # Changed from "localhost" to "0.0.0.0" for Render
         port=http_port,
         log_level="info"
     )
