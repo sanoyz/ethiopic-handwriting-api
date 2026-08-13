@@ -936,7 +936,7 @@ class HandwritingInferenceEngine:
 
 
 # ============================================================
-# HTML CONTENT - FIXED: Shows model paths and handles loaded state
+# HTML CONTENT - FIXED: Proper model loading state
 # ============================================================
 
 def get_html_content(ws_port: int, default_checkpoint: str = "", default_deployment: str = "", host: str = "localhost", model_preloaded: bool = False) -> str:
@@ -1143,7 +1143,7 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
             document.getElementById('connectionStatus').className = 'connection-status connected';
             showStatus('Connected to server', 'success');
             reconnectAttempts = 0;
-            // Check status immediately to see if model is loaded
+            // Check status immediately to get model state
             sendCommand('status');
         }};
         ws.onmessage = (event) => {{
@@ -1457,8 +1457,8 @@ async def startup_event():
     
     print(f"\n[INFO] Starting up...")
     print(f"[INFO] BASE_DIR: {BASE_DIR}")
-    print(f"[INFO] Default checkpoint: {DEFAULT_CHECKPOINT}")
-    print(f"[INFO] Default deployment: {DEFAULT_DEPLOYMENT}")
+    print(f"[INFO] Default checkpoint from env: {DEFAULT_CHECKPOINT}")
+    print(f"[INFO] Default deployment from env: {DEFAULT_DEPLOYMENT}")
     print(f"[INFO] Checkpoint exists: {os.path.exists(DEFAULT_CHECKPOINT)}")
     
     if os.path.exists(DEFAULT_CHECKPOINT):
@@ -1471,7 +1471,7 @@ async def startup_event():
             model_preloaded = True
             print(f"[OK] Model loaded automatically on startup")
             
-            # Broadcast model loaded status to all connected WebSocket clients
+            # Broadcast to all connected WebSocket clients
             await broadcast_model_status()
             
         except Exception as e:
@@ -1500,7 +1500,6 @@ async def broadcast_model_status():
         try:
             await ws.send(json.dumps(status_msg))
         except:
-            # Remove dead connections
             websocket_connections.remove(ws)
 
 
@@ -1512,7 +1511,7 @@ async def root():
         actual_ws_port, 
         DEFAULT_CHECKPOINT, 
         DEFAULT_DEPLOYMENT, 
-        "localhost",
+        "0.0.0.0" if os.getenv("RENDER") else "localhost",
         model_preloaded
     ))
 
@@ -1614,13 +1613,12 @@ websocket_engine = None
 
 async def websocket_handler(websocket):
     """Handle WebSocket connections"""
-    global websocket_engine, websocket_connections
+    global websocket_engine, websocket_connections, inference_engine
     
-    # Add connection to list
     websocket_connections.append(websocket)
     print(f"[INFO] WebSocket client connected (total: {len(websocket_connections)})")
     
-    # Send current model status immediately
+    # Send current status immediately
     status_msg = {
         "type": "status",
         "status": "loaded" if inference_engine else "not_loaded",
@@ -1656,7 +1654,6 @@ async def websocket_handler(websocket):
                     )
                     
                     # Update global inference engine
-                    global inference_engine
                     inference_engine = websocket_engine
                     
                     await websocket.send(json.dumps({
@@ -1726,7 +1723,6 @@ async def websocket_handler(websocket):
     except Exception as e:
         print(f"[ERROR] WebSocket error: {e}")
     finally:
-        # Remove connection from list
         if websocket in websocket_connections:
             websocket_connections.remove(websocket)
         print(f"[INFO] WebSocket client disconnected (total: {len(websocket_connections)})")
