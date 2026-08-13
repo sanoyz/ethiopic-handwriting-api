@@ -90,9 +90,12 @@ USE_POSITION_ENCODING = True
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Default paths - USE ABSOLUTE WINDOWS PATHS
-DEFAULT_CHECKPOINT = r"C:\YonAPI\models\API_ready_model\best_model.pt"
-DEFAULT_DEPLOYMENT = r"C:\YonAPI\deployment_data"
+# Define BASE_DIR - the root directory 
+BASE_DIR = Path(__file__).parent.absolute()
+
+# Default paths - USE ENVIRONMENT VARIABLES FIRST (for Render)
+DEFAULT_CHECKPOINT = os.getenv("MODEL_PATH", str(BASE_DIR / "models" / "API_ready_model" / "best_model.pt"))
+DEFAULT_DEPLOYMENT = os.getenv("DEPLOYMENT_DIR", str(BASE_DIR / "deployment_data"))
 
 # Language Model Configuration
 LM_MODEL_NAME = "rasyosef/roberta-base-amharic"  # Best Amharic LM
@@ -108,7 +111,7 @@ def find_available_port(start_port: int, max_attempts: int = 10) -> int:
     for port in range(start_port, start_port + max_attempts):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(('localhost', port))
+                s.bind(('0.0.0.0', port))
                 return port
         except OSError:
             continue
@@ -1083,10 +1086,10 @@ class HandwritingInferenceEngine:
 
 
 # ============================================================
-# HTML CONTENT
+# HTML CONTENT - FIXED: Dynamic WebSocket host
 # ============================================================
 
-def get_html_content(ws_port: int, default_checkpoint: str = "", default_deployment: str = "") -> str:
+def get_html_content(ws_port: int, default_checkpoint: str = "", default_deployment: str = "", model_preloaded: bool = False, vocab_size: int = 0, lm_available: bool = False) -> str:
     return f'''<!DOCTYPE html>
 <html>
 <head>
@@ -1236,15 +1239,38 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
 </div>
 
 <script>
-    let allStrokes = [], currentStroke = [], isDrawing = false;
-    let ws = null, modelLoaded = false;
+    // ============================================================
+    // STATE VARIABLES
+    // ============================================================
+    let allStrokes = [];
+    let currentStroke = [];
+    let isDrawing = false;
+    let ws = null;
+    let modelLoaded = {str(model_preloaded).lower()};
+    let modelVocabSize = {vocab_size};
+    let lmAvailable = {str(lm_available).lower()};
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
     const MAX_STROKES = 60;
     
+    // ============================================================
+    // FIXED: DYNAMIC WebSocket host - uses current window location
+    // NO hardcoded localhost!
+    // ============================================================
+    const wsHost = window.location.hostname;
+    const wsPort = {ws_port};
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${{wsProtocol}}//${{wsHost}}:${{wsPort}}`;
+    
+    console.log('WebSocket URL:', wsUrl);
+    console.log('Hostname:', wsHost);
+    console.log('Protocol:', wsProtocol);
+    
+    // Canvas setup
     const canvas = document.getElementById('handwritingCanvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = 800; canvas.height = 500;
+    canvas.width = 800;
+    canvas.height = 500;
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = '#1f2937';
@@ -1252,100 +1278,134 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
     ctx.lineJoin = 'round';
     ctx.lineWidth = 2;
     
+    // ============================================================
+    // UI UPDATE FUNCTIONS
+    // ============================================================
+    function updateModelUI(loaded, vocab_size = null, lm_avail = null) {{
+        modelLoaded = loaded;
+        if (vocab_size !== null) {{
+            modelVocabSize = vocab_size;
+        }}
+        if (lm_avail !== null) {{
+            lmAvailable = lm_avail;
+        }}
+        
+        const statusEl = document.getElementById('modelStatus');
+        const recognizeBtn = document.getElementById('recognizeBtn');
+        const pathInfoEl = document.getElementById('pathInfo');
+        
+        if (loaded) {{
+            statusEl.innerHTML = `✅ Model ready (vocab: ${{modelVocabSize || '?'}}, max_strokes: 60, LM: ${{lmAvailable ? 'Yes' : 'No'}})`;
+            statusEl.className = 'model-info loaded';
+            recognizeBtn.disabled = false;
+            pathInfoEl.innerHTML = `📁 Model loaded from environment variables`;
+        }} else {{
+            statusEl.innerHTML = '❌ Model not loaded';
+            statusEl.className = 'model-info';
+            recognizeBtn.disabled = true;
+            pathInfoEl.innerHTML = '';
+        }}
+    }}
+    
+    // ============================================================
+    // WEBSOCKET FUNCTIONS
+    // ============================================================
     function connectWebSocket() {{
-        const wsPort = {ws_port};
-        ws = new WebSocket(`ws://localhost:${{wsPort}}`);
-        ws.onopen = () => {{
-            document.getElementById('connectionStatus').textContent = 'Connected';
-            document.getElementById('connectionStatus').className = 'connection-status connected';
-            showStatus('Connected to server', 'success');
-            reconnectAttempts = 0;
-        }};
-        ws.onmessage = (event) => {{
-            const data = JSON.parse(event.data);
-            if (data.type === 'model_loaded') {{
-                if (data.success) {{
-                    modelLoaded = true;
-                    document.getElementById('modelStatus').innerHTML = `Model ready (vocab: ${{data.vocab_size}}, max_strokes: 60, LM: ${{data.lm_available ? 'Yes' : 'No'}})`;
-                    document.getElementById('modelStatus').className = 'model-info loaded';
-                    document.getElementById('pathInfo').innerHTML = `Deployment data: ${{data.deployment_loaded ? 'Loaded' : 'Not loaded'}}`;
-                    showStatus('Model loaded successfully!', 'success');
-                    document.getElementById('recognizeBtn').disabled = false;
-                }} else {{
-                    modelLoaded = false;
-                    document.getElementById('modelStatus').innerHTML = `Error: ${{data.error}}`;
-                    document.getElementById('modelStatus').className = 'model-info error';
-                    document.getElementById('recognizeBtn').disabled = true;
-                }}
-            }} else if (data.type === 'recognition_result') {{
-                if (data.success) {{
-                    const resultText = document.getElementById('resultText');
-                    resultText.textContent = data.text;
-                    
-                    if (data.was_corrected) {{
-                        document.getElementById('correctionBadge').style.display = 'inline';
-                        resultText.className = 'result-text corrected';
-                        document.getElementById('originalText').textContent = `Original: "${{data.original_text}}"`;
-                        document.getElementById('originalText').style.display = 'block';
-                        if (data.corrections && data.corrections.length > 0) {{
-                            const details = document.getElementById('correctionDetails');
-                            details.style.display = 'block';
-                            details.innerHTML = data.corrections.map(c => 
-                                `<div>• "${{c.original || c.pattern}}" → "${{c.corrected || c.replacement}}"</div>`
-                            ).join('');
+        try {{
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {{
+                document.getElementById('connectionStatus').textContent = 'Connected';
+                document.getElementById('connectionStatus').className = 'connection-status connected';
+                showStatus('Connected to server', 'success');
+                reconnectAttempts = 0;
+                // Check status immediately on connection
+                sendCommand('status');
+            }};
+            
+            ws.onmessage = (event) => {{
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'model_loaded') {{
+                    if (data.success) {{
+                        updateModelUI(true, data.vocab_size, data.lm_available);
+                        document.getElementById('pathInfo').innerHTML = `📁 Deployment data: ${{data.deployment_loaded ? '✅ Loaded' : '⚠️ Not loaded'}}`;
+                        showStatus('✅ Model loaded successfully!', 'success');
+                    }} else {{
+                        updateModelUI(false);
+                        document.getElementById('modelStatus').innerHTML = `❌ Error: ${{data.error}}`;
+                        document.getElementById('modelStatus').className = 'model-info error';
+                    }}
+                }} else if (data.type === 'recognition_result') {{
+                    if (data.success) {{
+                        const resultText = document.getElementById('resultText');
+                        resultText.textContent = data.text;
+                        
+                        if (data.was_corrected) {{
+                            document.getElementById('correctionBadge').style.display = 'inline';
+                            resultText.className = 'result-text corrected';
+                            document.getElementById('originalText').textContent = `Original: "${{data.original_text}}"`;
+                            document.getElementById('originalText').style.display = 'block';
+                            if (data.corrections && data.corrections.length > 0) {{
+                                const details = document.getElementById('correctionDetails');
+                                details.style.display = 'block';
+                                details.innerHTML = data.corrections.map(c => 
+                                    `<div>• "${{c.original || c.pattern}}" → "${{c.corrected || c.replacement}}"</div>`
+                                ).join('');
+                            }}
+                        }} else {{
+                            document.getElementById('correctionBadge').style.display = 'none';
+                            resultText.className = 'result-text';
+                            document.getElementById('originalText').style.display = 'none';
+                            document.getElementById('correctionDetails').style.display = 'none';
                         }}
+                        
+                        if (data.lm_used) {{
+                            document.getElementById('lmBadge').style.display = 'inline';
+                        }} else {{
+                            document.getElementById('lmBadge').style.display = 'none';
+                        }}
+                        
+                        document.getElementById('timeValue').textContent = `${{data.time}} ms`;
+                        document.getElementById('confidenceValue').textContent = `${{data.confidence}}%`;
+                        document.getElementById('strokesValue').textContent = data.total_strokes || 0;
+                        document.getElementById('pointsValue').textContent = data.total_points || 0;
+                        showStatus(`✅ Recognized: "${{data.text}}"`, 'success');
                     }} else {{
-                        document.getElementById('correctionBadge').style.display = 'none';
-                        resultText.className = 'result-text';
-                        document.getElementById('originalText').style.display = 'none';
-                        document.getElementById('correctionDetails').style.display = 'none';
+                        document.getElementById('resultText').textContent = 'Error';
+                        showStatus(`❌ Error: ${{data.error}}`, 'error');
                     }}
-                    
-                    if (data.lm_used) {{
-                        document.getElementById('lmBadge').style.display = 'inline';
+                }} else if (data.type === 'status') {{
+                    if (data.status === 'loaded') {{
+                        updateModelUI(true, data.vocab_size, data.lm_available);
                     }} else {{
-                        document.getElementById('lmBadge').style.display = 'none';
+                        updateModelUI(false);
                     }}
-                    
-                    document.getElementById('timeValue').textContent = `${{data.time}} ms`;
-                    document.getElementById('confidenceValue').textContent = `${{data.confidence}}%`;
-                    document.getElementById('strokesValue').textContent = data.total_strokes || 0;
-                    document.getElementById('pointsValue').textContent = data.total_points || 0;
-                    showStatus(`Recognized: "${{data.text}}"`, 'success');
-                }} else {{
-                    document.getElementById('resultText').textContent = 'Error';
-                    showStatus(`Error: ${{data.error}}`, 'error');
                 }}
-            }} else if (data.type === 'status') {{
-                if (data.status === 'loaded') {{
-                    modelLoaded = true;
-                    document.getElementById('modelStatus').innerHTML = `Ready (vocab: ${{data.vocab_size}})`;
-                    document.getElementById('modelStatus').className = 'model-info loaded';
-                    document.getElementById('recognizeBtn').disabled = false;
-                }} else {{
-                    modelLoaded = false;
-                    document.getElementById('modelStatus').innerHTML = 'Model not loaded';
-                    document.getElementById('modelStatus').className = 'model-info';
-                    document.getElementById('recognizeBtn').disabled = true;
-                }}
-            }}
-        }};
-        ws.onerror = () => {{
-            document.getElementById('connectionStatus').textContent = 'Connection Error';
-            document.getElementById('connectionStatus').className = 'connection-status disconnected';
-        }};
-        ws.onclose = () => {{
-            document.getElementById('connectionStatus').textContent = 'Reconnecting...';
-            document.getElementById('connectionStatus').className = 'connection-status connecting';
-            if (reconnectAttempts < maxReconnectAttempts) {{
-                reconnectAttempts++;
-                setTimeout(connectWebSocket, 3000);
-            }} else {{
-                document.getElementById('connectionStatus').textContent = 'Disconnected';
+            }};
+            
+            ws.onerror = () => {{
+                document.getElementById('connectionStatus').textContent = 'Connection Error';
                 document.getElementById('connectionStatus').className = 'connection-status disconnected';
-                showStatus('Could not connect to server', 'error');
-            }}
-        }};
+                console.error('WebSocket error');
+            }};
+            
+            ws.onclose = () => {{
+                document.getElementById('connectionStatus').textContent = 'Reconnecting...';
+                document.getElementById('connectionStatus').className = 'connection-status connecting';
+                if (reconnectAttempts < maxReconnectAttempts) {{
+                    reconnectAttempts++;
+                    setTimeout(connectWebSocket, 3000);
+                }} else {{
+                    document.getElementById('connectionStatus').textContent = 'Disconnected';
+                    document.getElementById('connectionStatus').className = 'connection-status disconnected';
+                    showStatus('Could not connect to server', 'error');
+                }}
+            }};
+        }} catch (e) {{
+            console.error('Failed to create WebSocket:', e);
+            showStatus('Failed to connect to server', 'error');
+        }}
     }}
     
     function sendCommand(command, data = {{}}) {{
@@ -1356,6 +1416,9 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
         }}
     }}
     
+    // ============================================================
+    // MODEL MANAGEMENT
+    // ============================================================
     function loadModel() {{
         const checkpointPath = document.getElementById('checkpointPath').value;
         const deploymentPath = document.getElementById('deploymentDataPath').value;
@@ -1363,12 +1426,20 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
             showStatus('Please enter a checkpoint path', 'error');
             return;
         }}
-        showStatus('Loading model...', 'info');
+        showStatus('⏳ Loading model...', 'info');
+        document.getElementById('modelStatus').innerHTML = '⏳ Loading...';
+        document.getElementById('modelStatus').className = 'model-info';
         sendCommand('load_model', {{ checkpoint_path: checkpointPath, deployment_data_path: deploymentPath }});
     }}
     
-    function checkStatus() {{ sendCommand('status'); }}
+    function checkStatus() {{ 
+        sendCommand('status'); 
+        showStatus('Checking status...', 'info');
+    }}
     
+    // ============================================================
+    // PEN AND DRAWING FUNCTIONS
+    // ============================================================
     function getPressure(e) {{ return e.pressure !== undefined ? Math.min(1, Math.max(0, e.pressure)) : 0.6; }}
     function getTilt(e) {{ return {{ tiltX: e.tiltX || 0, tiltY: e.tiltY || 0 }}; }}
     
@@ -1460,6 +1531,9 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
         updatePenStatus(null);
     }}
     
+    // ============================================================
+    // CANVAS ACTIONS
+    // ============================================================
     function clearCanvas() {{
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1502,12 +1576,18 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
     
     function recognize() {{
         if (allStrokes.length === 0) {{ showStatus('Write something first!', 'warning'); return; }}
-        if (!modelLoaded) {{ showStatus('Please load a model first!', 'error'); return; }}
-        showStatus('Recognizing...', 'info');
+        if (!modelLoaded) {{ 
+            showStatus('Please load a model first! Click "Load Model" or check status.', 'error'); 
+            return; 
+        }}
+        showStatus('⏳ Recognizing...', 'info');
         document.getElementById('resultText').textContent = 'Processing...';
         sendCommand('recognize', {{ strokes: allStrokes }});
     }}
     
+    // ============================================================
+    // STATUS MESSAGE
+    // ============================================================
     function showStatus(msg, type) {{
         const el = document.getElementById('statusMessage');
         el.textContent = msg;
@@ -1523,6 +1603,9 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
         }}
     }}
     
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
     canvas.addEventListener('pointerdown', startDrawing);
     canvas.addEventListener('pointermove', draw);
     canvas.addEventListener('pointerup', stopDrawing);
@@ -1541,7 +1624,10 @@ def get_html_content(ws_port: int, default_checkpoint: str = "", default_deploym
         if (e.key === 'Enter') loadModel();
     }});
     
-    document.getElementById('recognizeBtn').disabled = true;
+    // ============================================================
+    // INITIALIZATION
+    // ============================================================
+    updateModelUI({str(model_preloaded).lower()}, {vocab_size}, {str(lm_available).lower()});
     connectWebSocket();
     showStatus('Ready - Write naturally with your pen', 'success');
 </script>
@@ -1570,28 +1656,60 @@ app.add_middleware(
 
 # Global inference engine
 inference_engine = None
+model_preloaded = False
+model_vocab_size = 0
+lm_available = False
+ws_port_actual = 8766
 
 
 @app.on_event("startup")
 async def startup_event():
     """Load model on startup"""
-    global inference_engine
+    global inference_engine, model_preloaded, model_vocab_size, lm_available
+    
+    print(f"\n[INFO] Starting up...")
+    print(f"[INFO] BASE_DIR: {BASE_DIR}")
+    print(f"[INFO] MODEL_PATH from env: {os.getenv('MODEL_PATH', 'NOT SET')}")
+    print(f"[INFO] DEPLOYMENT_DIR from env: {os.getenv('DEPLOYMENT_DIR', 'NOT SET')}")
+    print(f"[INFO] Default checkpoint: {DEFAULT_CHECKPOINT}")
+    print(f"[INFO] Default deployment: {DEFAULT_DEPLOYMENT}")
+    print(f"[INFO] Checkpoint exists: {os.path.exists(DEFAULT_CHECKPOINT)}")
     
     if os.path.exists(DEFAULT_CHECKPOINT):
         try:
+            deployment_path = DEFAULT_DEPLOYMENT if os.path.exists(DEFAULT_DEPLOYMENT) else None
             inference_engine = HandwritingInferenceEngine(
                 DEFAULT_CHECKPOINT,
-                DEFAULT_DEPLOYMENT if os.path.exists(DEFAULT_DEPLOYMENT) else None,
+                deployment_path,
                 enable_lm=USE_LANGUAGE_MODEL
             )
-            print(f"[OK] Model loaded automatically on startup")
+            model_preloaded = True
+            model_vocab_size = inference_engine.vocab_size
+            lm_available = inference_engine.lm is not None and inference_engine.lm.available
+            print(f"[OK] Model loaded automatically on startup with vocab size: {model_vocab_size}, LM: {lm_available}")
         except Exception as e:
             print(f"[ERROR] Failed to load model on startup: {e}")
+            model_preloaded = False
+            model_vocab_size = 0
+            lm_available = False
+    else:
+        print(f"[WARNING] Model checkpoint not found at startup. Use the UI to load it.")
+        model_preloaded = False
+        model_vocab_size = 0
+        lm_available = False
 
 
 @app.get("/")
 async def root():
-    return HTMLResponse(get_html_content(8766, DEFAULT_CHECKPOINT, DEFAULT_DEPLOYMENT))
+    global ws_port_actual, model_preloaded, model_vocab_size, lm_available
+    return HTMLResponse(get_html_content(
+        ws_port_actual, 
+        DEFAULT_CHECKPOINT, 
+        DEFAULT_DEPLOYMENT, 
+        model_preloaded,
+        model_vocab_size,
+        lm_available
+    ))
 
 
 @app.get("/health")
@@ -1693,8 +1811,32 @@ websocket_engine = None
 
 async def websocket_handler(websocket):
     """Handle WebSocket connections"""
-    global websocket_engine
+    global websocket_engine, inference_engine
+    
     print("[INFO] WebSocket client connected")
+    
+    # Send current model status immediately on connection
+    if inference_engine is not None:
+        status_msg = {
+            "type": "status",
+            "status": "loaded",
+            "vocab_size": inference_engine.vocab_size,
+            "lm_available": inference_engine.lm is not None and inference_engine.lm.available,
+            "deployment_loaded": True
+        }
+    else:
+        status_msg = {
+            "type": "status",
+            "status": "not_loaded",
+            "vocab_size": 0,
+            "lm_available": False,
+            "deployment_loaded": False
+        }
+    
+    try:
+        await websocket.send(json.dumps(status_msg))
+    except:
+        pass
     
     try:
         async for message in websocket:
@@ -1721,6 +1863,9 @@ async def websocket_handler(websocket):
                         enable_lm=enable_lm
                     )
                     
+                    # Update global inference engine
+                    inference_engine = websocket_engine
+                    
                     await websocket.send(json.dumps({
                         "type": "model_loaded",
                         "success": True,
@@ -1739,7 +1884,9 @@ async def websocket_handler(websocket):
                     }))
             
             elif command == "recognize":
-                if websocket_engine is None:
+                engine = websocket_engine if websocket_engine is not None else inference_engine
+                
+                if engine is None:
                     await websocket.send(json.dumps({
                         "type": "recognition_result",
                         "success": False,
@@ -1751,7 +1898,7 @@ async def websocket_handler(websocket):
                 print(f"[INFO] Recognizing {len(strokes)} strokes")
                 
                 try:
-                    result = websocket_engine.recognize(strokes)
+                    result = engine.recognize(strokes)
                     await websocket.send(json.dumps({
                         "type": "recognition_result",
                         "success": True,
@@ -1775,15 +1922,23 @@ async def websocket_handler(websocket):
                     }))
             
             elif command == "status":
-                status = "loaded" if websocket_engine else "not_loaded"
-                vocab = websocket_engine.vocab_size if websocket_engine else 0
-                lm_avail = websocket_engine.lm is not None and websocket_engine.lm.available if websocket_engine else False
-                await websocket.send(json.dumps({
-                    "type": "status",
-                    "status": status,
-                    "vocab_size": vocab,
-                    "lm_available": lm_avail
-                }))
+                engine = websocket_engine if websocket_engine is not None else inference_engine
+                if engine is not None:
+                    await websocket.send(json.dumps({
+                        "type": "status",
+                        "status": "loaded",
+                        "vocab_size": engine.vocab_size,
+                        "lm_available": engine.lm is not None and engine.lm.available,
+                        "deployment_loaded": True
+                    }))
+                else:
+                    await websocket.send(json.dumps({
+                        "type": "status",
+                        "status": "not_loaded",
+                        "vocab_size": 0,
+                        "lm_available": False,
+                        "deployment_loaded": False
+                    }))
                 
     except Exception as e:
         print(f"[ERROR] WebSocket error: {e}")
@@ -1791,8 +1946,8 @@ async def websocket_handler(websocket):
 
 async def start_websocket_server(port: int):
     """Start WebSocket server"""
-    async with websockets.serve(websocket_handler, "localhost", port):
-        print(f"[OK] WebSocket server running on ws://localhost:{port}")
+    async with websockets.serve(websocket_handler, "0.0.0.0", port):
+        print(f"[OK] WebSocket server running on ws://0.0.0.0:{port}")
         await asyncio.Future()  # Run forever
 
 
@@ -1802,8 +1957,10 @@ async def start_websocket_server(port: int):
 
 async def main():
     """Main entry point"""
-    # Find available ports
-    ws_port = find_available_port(8766)
+    global ws_port_actual
+    
+    # Find available ports - use 0.0.0.0 for Render compatibility
+    ws_port_actual = find_available_port(8766)
     http_port = find_available_port(8081)
     
     print("\n" + "=" * 70)
@@ -1812,9 +1969,9 @@ async def main():
     print("  WITH AMHARIC LANGUAGE MODEL")
     print("=" * 70)
     print(f"  Device: {DEVICE}")
-    print(f"  WebSocket: ws://localhost:{ws_port}")
-    print(f"  HTTP API: http://localhost:{http_port}")
-    print(f"  Documentation: http://localhost:{http_port}/docs")
+    print(f"  WebSocket: ws://0.0.0.0:{ws_port_actual}")
+    print(f"  HTTP API: http://0.0.0.0:{http_port}")
+    print(f"  Documentation: http://0.0.0.0:{http_port}/docs")
     print("=" * 70)
     print("\n  Default Paths:")
     print(f"  Checkpoint: {DEFAULT_CHECKPOINT}")
@@ -1823,7 +1980,7 @@ async def main():
     print("\n  Features:")
     print("  1. REST API: /predict (file upload), /predict_json (JSON body)")
     print("  2. WebSocket: Real-time handwriting recognition")
-    print("  3. Interactive UI: http://localhost:{http_port}")
+    print("  3. Interactive UI: http://0.0.0.0:{http_port}")
     print("  4. Post-processing corrections with deployment data")
     print("  5. Amharic Language Model (roberta-base-amharic) for contextual correction")
     print("=" * 70)
@@ -1842,7 +1999,7 @@ async def main():
     print("")
     
     # Start WebSocket server
-    ws_task = asyncio.create_task(start_websocket_server(ws_port))
+    ws_task = asyncio.create_task(start_websocket_server(ws_port_actual))
     
     # Start HTTP server with uvicorn
     config = uvicorn.Config(
